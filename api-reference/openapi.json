@@ -547,88 +547,6 @@
         }
       }
     },
-    "/airtimeList": {
-      "get": {
-        "tags": [
-          "Vending"
-        ],
-        "summary": "List Airtime Networks",
-        "description": "Get all available airtime networks and their details",
-        "operationId": "airtimeList",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved airtime networks",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "gatewayStatus": {
-                      "type": "string",
-                      "example": "00"
-                    },
-                    "gatewayMessage": {
-                      "type": "string",
-                      "example": "Successfully Processed"
-                    },
-                    "requestReference": {
-                      "type": "string",
-                      "example": "MA1EF7AxNWuLz2Y0Jzfw"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "ID": {
-                            "type": "number"
-                          },
-                          "Network": {
-                            "type": "string"
-                          },
-                          "Operator": {
-                            "type": "string"
-                          },
-                          "Region": {
-                            "type": "string"
-                          },
-                          "MinAmount": {
-                            "type": "number"
-                          },
-                          "MaxAmount": {
-                            "type": "number"
-                          },
-                          "Percentage": {
-                            "type": "number"
-                          },
-                          "NetworkLogo": {
-                            "type": "string"
-                          },
-                          "VoucherCode": {
-                            "type": "string"
-                          },
-                          "CreatedAt": {
-                            "type": "string"
-                          },
-                          "UpdatedAt": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/purchaseAirtime": {
       "post": {
         "tags": [
@@ -664,20 +582,50 @@
                       "type": "string",
                       "description": "Network provider",
                       "enum": [
-                        "mtn",
-                        "airtel",
-                        "globacom",
-                        "9mobile"
+                        "MTN",
+                        "AIRTEL",
+                        "GLOBACOM",
+                        "9MOBILE"
                       ],
-                      "example": "mtn"
+                      "example": "MTN"
+                    },
+                    "productCode": {
+                      "type": "string",
+                      "description": "Standard product code retrieved from the Airtime catalog",
+                      "example": "LA_MTN_VTU",
+                      "enum": [
+                        "LA_MTN",
+                        "LA_AIRTEL",
+                        "LA_GLOBACOM",
+                        "LA_9MOBILE",
+                        "BP_MTN",
+                        "BP_AIRTEL",
+                        "BP_GLOBACOM",
+                        "BP_9MOBILE"
+                      ]
+                    },
+                    "voucherCode": {
+                      "type": "string",
+                      "description": "Provider-specific voucher SKU if applicable",
+                      "example": ""
                     }
                   },
                   "required": [
                     "amount",
                     "phoneNumber",
-                    "network"
+                    "network",
+                    "productCode"
                   ]
-                }
+                },
+                "minItems": 1,
+                "default": [
+                  {
+                    "amount": 50,
+                    "phoneNumber": "08107176819",
+                    "network": "MTN",
+                    "productCode": "LA_MTN"
+                  }
+                ]
               }
             }
           }
@@ -705,105 +653,6 @@
                     "data": {
                       "type": "string",
                       "example": "Airtime purchased processing"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/dataList": {
-      "get": {
-        "tags": [
-          "Vending"
-        ],
-        "summary": "List Data Plans",
-        "description": "Get available data plans for a specific network",
-        "operationId": "dataList",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "network",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "globacom",
-                "airtel",
-                "mtn",
-                "9mobile"
-              ]
-            },
-            "description": "Network provider to get data plans for"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved data plans",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "gatewayStatus": {
-                      "type": "string",
-                      "example": "00"
-                    },
-                    "gatewayMessage": {
-                      "type": "string",
-                      "example": "Successfully Processed"
-                    },
-                    "requestReference": {
-                      "type": "string",
-                      "example": "oodwwrNrMbP9grMPFKVW"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "ID": {
-                            "type": "number"
-                          },
-                          "Network": {
-                            "type": "string"
-                          },
-                          "Operator": {
-                            "type": "string"
-                          },
-                          "ProductCode": {
-                            "type": "string"
-                          },
-                          "ProductGroup": {
-                            "type": "string"
-                          },
-                          "NetworkLogo": {
-                            "type": "string"
-                          },
-                          "VoucherCode": {
-                            "type": "string"
-                          },
-                          "Description": {
-                            "type": "string"
-                          },
-                          "DataValue": {
-                            "type": "number"
-                          },
-                          "CreatedAt": {
-                            "type": "string"
-                          },
-                          "UpdatedAt": {
-                            "type": "string"
-                          }
-                        }
-                      }
                     }
                   }
                 }
@@ -843,13 +692,39 @@
                       "type": "string",
                       "description": "Product code for the data plan",
                       "example": "LV_MTN_XTRADATA_3DAYS_200_200"
+                    },
+                    "network": {
+                      "type": "string",
+                      "description": "Target network operator",
+                      "example": "MTN"
+                    },
+                    "voucherCode": {
+                      "type": "string",
+                      "description": "Catalog-provided voucher code identifier",
+                      "example": "LV_MTN_1.5GB"
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Cost of the data bundle as mapped in the system",
+                      "example": 1000.0
                     }
                   },
                   "required": [
                     "phoneNumber",
-                    "productCode"
+                    "productCode",
+                    "voucherCode",
+                    "network"
                   ]
-                }
+                },
+                "minItems": 1,
+                "default": [
+                  {
+                    "phoneNumber": "08107176819",
+                    "productCode": "LV_MTN_1000_34",
+                    "voucherCode": "LV_MTN",
+                    "network": "LV_MTN"
+                  }
+                ]
               }
             }
           }
@@ -1248,6 +1123,677 @@
                                 "type": "string"
                               }
                             }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validateMeter": {
+      "post": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "Validate Electricity Meter",
+        "description": "Verify electricity meter ownership before purchase",
+        "operationId": "validateMeter",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "meter": {
+                    "type": "string",
+                    "description": "The electricity meter number to validate",
+                    "example": "12345678910"
+                  },
+                  "disco": {
+                    "type": "string",
+                    "description": "The Distribution Company (DisCo) slug",
+                    "example": "ikeja-electric"
+                  }
+                },
+                "required": [
+                  "meter",
+                  "disco"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully Processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "JOHN DOE"
+                        },
+                        "address": {
+                          "type": "string",
+                          "example": "123 TEST STREET, IKEJA"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchaseElectricity": {
+      "post": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "Purchase Electricity",
+        "description": "Purchase electricity token for a meter",
+        "operationId": "purchaseElectricity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "Amount of electricity to purchase (in Naira)",
+                    "example": 1500.0
+                  },
+                  "meter": {
+                    "type": "string",
+                    "description": "The validated electricity meter number",
+                    "example": "12345678910"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "The customer phone number",
+                    "example": "08000000000"
+                  },
+                  "disco": {
+                    "type": "string",
+                    "description": "The Distribution Company (DisCo) slug",
+                    "example": "ikeja-electric"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "meter",
+                  "phone",
+                  "disco"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully Processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "example": "SUCCESS"
+                        },
+                        "token": {
+                          "type": "string",
+                          "example": "1234 5678 9101 1121 3141"
+                        },
+                        "units": {
+                          "type": "string",
+                          "example": "24.5 kWh"
+                        },
+                        "reference": {
+                          "type": "string",
+                          "example": "b8c3a1b2-1024-4f5c-89de-d93a7c6b98e1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validateSmartcard": {
+      "post": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "Validate Cable TV",
+        "description": "Verify cable TV smartcard ownership",
+        "operationId": "validateSmartcard",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "smartcard": {
+                    "type": "string",
+                    "description": "The customer Cable TV smartcard or IUC number",
+                    "example": "8093245829"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "description": "The Cable TV provider (e.g. DSTV, GOTV, STARTIMES)",
+                    "example": "DSTV"
+                  }
+                },
+                "required": [
+                  "smartcard",
+                  "provider"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully Processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "example": "JANE DOE"
+                        },
+                        "customerNumber": {
+                          "type": "string",
+                          "example": "123456789"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/purchaseCableTV": {
+      "post": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "Purchase Cable TV",
+        "description": "Purchase a subscription for Cable TV",
+        "operationId": "purchaseCableTV",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "Amount of the subscription package to purchase",
+                    "example": 15700.0
+                  },
+                  "smartcard": {
+                    "type": "string",
+                    "description": "The validated customer smartcard or IUC number",
+                    "example": "8093245829"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "The customer phone number",
+                    "example": "08000000000"
+                  },
+                  "provider": {
+                    "type": "string",
+                    "description": "The Cable TV provider",
+                    "example": "DSTV"
+                  },
+                  "bouquetCode": {
+                    "type": "string",
+                    "description": "The specific package or bouquet code",
+                    "example": "db4"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "smartcard",
+                  "phone",
+                  "provider",
+                  "bouquetCode"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully Processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "example": "SUCCESS"
+                        },
+                        "reference": {
+                          "type": "string",
+                          "example": "b8c3a1b2-1024-4f5c-89de-d93a7c6b98e1"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ElectricityList": {
+      "get": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "List Electricity Providers",
+        "description": "Retrieve the list of supported Electricity Distribution Companies (Discos).",
+        "operationId": "electricityList",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved electricity providers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "productCode": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CableTVList": {
+      "get": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "List Cable TV Bouquets",
+        "description": "Retrieve the catalog of bouquets/plans for Cable TV providers. You can optionally filter by provider.",
+        "operationId": "cableTVList",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "network",
+            "in": "query",
+            "required": false,
+            "description": "Filter results by provider (e.g. DSTV, GOTV, STARTIMES)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved cable tv bouquets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number"
+                          },
+                          "network": {
+                            "type": "string"
+                          },
+                          "productCode": {
+                            "type": "string"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "amount": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AirtimeList": {
+      "get": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "List Airtime Networks",
+        "description": "Get all available airtime networks and their details",
+        "operationId": "airtimeList",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved airtime networks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "MA1EF7AxNWuLz2Y0Jzfw"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "ID": {
+                            "type": "number"
+                          },
+                          "Network": {
+                            "type": "string"
+                          },
+                          "Operator": {
+                            "type": "string"
+                          },
+                          "Region": {
+                            "type": "string"
+                          },
+                          "MinAmount": {
+                            "type": "number"
+                          },
+                          "MaxAmount": {
+                            "type": "number"
+                          },
+                          "Percentage": {
+                            "type": "number"
+                          },
+                          "NetworkLogo": {
+                            "type": "string"
+                          },
+                          "VoucherCode": {
+                            "type": "string"
+                          },
+                          "CreatedAt": {
+                            "type": "string"
+                          },
+                          "UpdatedAt": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DataList": {
+      "get": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "List Data Plans",
+        "description": "Get available data plans for a specific network",
+        "operationId": "dataList",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "network",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "GLOBACOM",
+                "AIRTEL",
+                "MTN",
+                "9MOBILE"
+              ]
+            },
+            "description": "Network provider to get data plans for"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved data plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "oodwwrNrMbP9grMPFKVW"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "ID": {
+                            "type": "number"
+                          },
+                          "Network": {
+                            "type": "string"
+                          },
+                          "Operator": {
+                            "type": "string"
+                          },
+                          "ProductCode": {
+                            "type": "string"
+                          },
+                          "ProductGroup": {
+                            "type": "string"
+                          },
+                          "NetworkLogo": {
+                            "type": "string"
+                          },
+                          "VoucherCode": {
+                            "type": "string"
+                          },
+                          "Description": {
+                            "type": "string"
+                          },
+                          "DataValue": {
+                            "type": "number"
+                          },
+                          "CreatedAt": {
+                            "type": "string"
+                          },
+                          "UpdatedAt": {
+                            "type": "string"
                           }
                         }
                       }

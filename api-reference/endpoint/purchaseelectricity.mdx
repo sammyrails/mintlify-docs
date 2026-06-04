@@ -1,0 +1,15 @@
+---
+title: "Purchase Electricity"
+openapi: "POST /purchaseElectricity"
+description: "Purchase electricity token for a meter"
+---
+
+## Overview
+
+Purchase an electricity token for a validated meter. The token will be generated instantly and can be used to recharge the meter.
+
+## Notes
+
+- **Minimum Amount:** The minimum purchase amount for electricity is typically ₦2,000.
+- **Maximum Amount:** The maximum purchase amount is ₦200,000 per transaction.
+- If the response returns `gatewayStatus: "01"` (Pending), wait 2 minutes and 1 second before calling the **Requery API**.

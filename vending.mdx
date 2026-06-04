@@ -1,12 +1,12 @@
 ---
 title: "Vending"
 icon: "wifi"
-description: "Purchase airtime and data bundles for Nigeria. Kenya support coming soon."
+description: "Purchase airtime, data bundles, electricity, and cable TV for Nigeria. Kenya support coming soon."
 ---
 
 ## Overview
 
-Our Vending API allows you to purchase airtime and data bundles for mobile networks. Currently, we support Nigeria with airtime and data vending services, with Kenya support coming soon.
+Our Vending API allows you to purchase airtime, data bundles, electricity, and cable TV subscriptions. Currently, we support Nigeria for all vending services, with Kenya support coming soon.
 
 ## Supported Services
 
@@ -21,41 +21,42 @@ Our Vending API allows you to purchase airtime and data bundles for mobile netwo
     - Various data plans with different validity periods
     - Flexible data amounts and durations
   </Card>
+  <Card title="Electricity Vending" icon="bolt">
+    - Purchase electricity tokens for all DisCos
+    - Pre-validate meter details before purchase
+    - Receive 20-digit recharge tokens instantly
+  </Card>
+  <Card title="Cable TV Vending" icon="tv">
+    - Subscribe to DSTV, GOTV, and Startimes
+    - Validate smartcards before transaction
+    - Instant subscription activation
+  </Card>
 </CardGroup>
 
-## Supported Networks
+## Supported Networks & Providers
 
 <CardGroup cols={2}>
-  <Card title="MTN" icon="signal">
-    Nigeria's largest mobile network
-    <br />
-    <em>Most Popular</em>
+  <Card title="Telecoms" icon="signal">
+    MTN, Airtel, Globacom (Glo), 9mobile
   </Card>
-  <Card title="Airtel" icon="signal">
-    Major Nigerian mobile network
-    <br />
-    <em>Reliable</em>
+  <Card title="Electricity DisCos" icon="bolt">
+    Ikeja Electric, Eko Electric, Abuja Electric, and more
   </Card>
-  <Card title="Globacom (Glo)" icon="signal">
-    Leading Nigerian mobile network
-    <br />
-    <em>Fast</em>
-  </Card>
-  <Card title="9mobile" icon="signal">
-    Nigerian mobile network
-    <br />
-    <em>Affordable</em>
+  <Card title="Cable TV" icon="tv">
+    DSTV, GOTV, Startimes
   </Card>
 </CardGroup>
 
 ## Getting Started
 
 <Steps>
-  <Step title="List Available Networks">
-    Get all supported airtime networks and their details
+  <Step title="List Available Providers">
+    Get all supported airtime networks, electricity DisCos, and cable TV providers
     
     ```bash
-    GET /airtimeList
+    GET /AirtimeList
+    GET /ElectricityList
+    GET /CableTVList
     ```
   </Step>
   <Step title="Purchase Airtime">
@@ -77,6 +78,22 @@ Our Vending API allows you to purchase airtime and data bundles for mobile netwo
     
     ```bash
     POST /purchaseData
+    ```
+  </Step>
+  <Step title="Validate Meter or Smartcard">
+    Verify electricity meter or cable TV smartcard ownership
+    
+    ```bash
+    POST /validateMeter
+    POST /validateSmartcard
+    ```
+  </Step>
+  <Step title="Purchase Utilities">
+    Pay for electricity or cable TV
+    
+    ```bash
+    POST /purchaseElectricity
+    POST /purchaseCableTV
     ```
   </Step>
   <Step title="View Statistics">

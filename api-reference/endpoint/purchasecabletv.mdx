@@ -1,0 +1,13 @@
+---
+title: "Purchase Cable TV"
+openapi: "POST /purchaseCableTV"
+description: "Purchase a subscription for Cable TV"
+---
+
+## Overview
+
+Purchase a subscription package for a validated Cable TV smartcard. The subscription will be activated instantly.
+
+## Notes
+
+- If the response returns `gatewayStatus: "01"` (Pending), wait 2 minutes and 1 second before calling the **Requery API**.

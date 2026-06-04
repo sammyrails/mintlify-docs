@@ -109,6 +109,12 @@
         "api-reference/endpoint/purchaseairtime",
         "api-reference/endpoint/datalist",
         "api-reference/endpoint/purchasedata",
+        "api-reference/endpoint/electricitylist",
+        "api-reference/endpoint/validateelectricity",
+        "api-reference/endpoint/purchaseelectricity",
+        "api-reference/endpoint/cabletvlist",
+        "api-reference/endpoint/validatecabletv",
+        "api-reference/endpoint/purchasecabletv",
         "api-reference/endpoint/vendingstatistics",
         "api-reference/endpoint/vendinglogs"
       ]
