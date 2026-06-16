@@ -553,7 +553,7 @@
           "Vending"
         ],
         "summary": "Purchase Airtime",
-        "description": "Purchase airtime for a phone number",
+        "description": "Purchase airtime for a phone number. \n\n**High-Availability Failover**: Airtime purchases are automatically rerouted across active providers (e.g. from LA to BA) if the requested product's primary server is down.",
         "operationId": "purchaseAirtime",
         "security": [
           {
@@ -668,7 +668,7 @@
           "Vending"
         ],
         "summary": "Purchase Data",
-        "description": "Purchase data bundle for a phone number",
+        "description": "Purchase data bundle for a phone number. \n\n**High-Availability Failover**: Unlike Airtime, Data plans are distinct per provider. If a requested provider is down, the API will return a 503 Service Unavailable error suggesting you pull from the alternate active provider's catalog (e.g., `Please use our other server [LV_] as this server is currently down.`).",
         "operationId": "purchaseData",
         "security": [
           {

@@ -33,6 +33,12 @@ Our Vending API allows you to purchase airtime, data bundles, electricity, and c
   </Card>
 </CardGroup>
 
+## High Availability & Failover
+
+Our Vending API is built with a robust multi-provider failover system to ensure maximum uptime:
+- **Airtime Failover**: If a primary provider's server is down, the API automatically and transparently reroutes your airtime transaction to a backup active provider.
+- **Data Failover**: Because data plans have unique catalogs per provider, the API securely blocks transactions to downed servers and returns a specific `503 Service Unavailable` error, prompting you to pull from the alternate active provider's catalog (e.g. switching from `BP_` to `LV_` prefixes).
+
 ## Supported Networks & Providers
 
 <CardGroup cols={2}>
