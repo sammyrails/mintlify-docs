@@ -1,12 +1,12 @@
 ---
 title: "Vending"
 icon: "wifi"
-description: "Purchase airtime, data bundles, electricity, and cable TV for Nigeria. Kenya support coming soon."
+description: "Purchase airtime, data bundles, electricity, and cable TV in Nigeria."
 ---
 
 ## Overview
 
-Our Vending API allows you to purchase airtime, data bundles, electricity, and cable TV subscriptions. Currently, we support Nigeria for all vending services, with Kenya support coming soon.
+The Vending API lets you sell airtime, data bundles, electricity tokens, and cable TV subscriptions from one API. The catalog endpoints return the currently supported products, prices, limits, and customer-facing product codes to use when purchasing.
 
 ## Supported Services
 
@@ -33,11 +33,30 @@ Our Vending API allows you to purchase airtime, data bundles, electricity, and c
   </Card>
 </CardGroup>
 
-## High Availability & Failover
+## Availability
 
-Our Vending API is built with a robust multi-provider failover system to ensure maximum uptime:
-- **Airtime Failover**: If a primary provider's server is down, the API automatically and transparently reroutes your airtime transaction to a backup active provider.
-- **Data Failover**: Because data plans have unique catalogs per provider, the API securely blocks transactions to downed servers and returns a specific `503 Service Unavailable` error, prompting you to pull from the alternate active provider's catalog (e.g. switching from `BP_` to `LV_` prefixes).
+Vending products are served from the active Bleeprs catalog. Always fetch the latest catalog before presenting product options to customers, because available plans, prices, and limits can change.
+
+If a purchase cannot be completed immediately, the API may return a pending response with a `requestReference`. Store this reference and call the Requery Transaction endpoint to confirm the final status before retrying or refunding the customer.
+
+## Transaction Lifecycle
+
+Every vending purchase moves through the same three phases:
+
+1. **Submit.** The purchase endpoint validates the request and debits your vending wallet. A `requestReference` is returned regardless of the final outcome — store it for every purchase.
+2. **Process.** Airtime and data batches are queued and completed within a few seconds. Electricity and cable TV return a `200` with token or bouquet details once the provider confirms the purchase, or a `202` with `gatewayStatus: "01"` if the provider is still processing.
+3. **Reconcile.** If the response was pending, wait at least **2 minutes** after the original purchase and call [Requery Transaction](/api-reference/endpoint/requeryvendingtransaction) with the `requestReference`. If a purchase ultimately fails, the debited amount is refunded to your wallet automatically.
+
+Do not resubmit a purchase while it is still `PENDING` — use requery instead.
+
+## Batch Purchases
+
+`POST /purchaseAirtime` and `POST /purchaseData` both accept an **array** of items so you can submit multiple purchases in one request. The response includes a `references` array with one reference per item, in the same order as the request.
+
+## Rate Limits & Concurrency
+
+- A short rate limit is applied per API key across all vending endpoints. Space out requests to avoid `429` responses.
+- Only one purchase can be in progress at a time for the same combination of target (phone number or meter) and amount. Duplicate submissions while the first is still processing receive a `429` — either wait for the first to complete or submit with a different amount.
 
 ## Supported Networks & Providers
 
@@ -57,37 +76,38 @@ Our Vending API is built with a robust multi-provider failover system to ensure 
 
 <Steps>
   <Step title="List Available Providers">
-    Get all supported airtime networks, electricity DisCos, and cable TV providers
+    Get the supported airtime networks, electricity DisCos, cable TV providers, and available product codes.
     
     ```bash
     GET /AirtimeList
+    GET /DataList
     GET /ElectricityList
     GET /CableTVList
     ```
   </Step>
   <Step title="Purchase Airtime">
-    Buy airtime for any phone number on supported networks
+    Buy airtime for any phone number on a supported network.
     
     ```bash
     POST /purchaseAirtime
     ```
   </Step>
   <Step title="List Data Plans">
-    Browse available data bundles by network
+    Browse available data bundles. You can filter by network.
     
     ```bash
-    GET /dataList?network=mtn
+    GET /DataList?network=MTN
     ```
   </Step>
   <Step title="Purchase Data">
-    Buy data bundles for any phone number
+    Buy data bundles using a product code from the data catalog.
     
     ```bash
     POST /purchaseData
     ```
   </Step>
   <Step title="Validate Meter or Smartcard">
-    Verify electricity meter or cable TV smartcard ownership
+    Verify electricity meter or cable TV smartcard details before payment.
     
     ```bash
     POST /validateMeter
@@ -95,7 +115,7 @@ Our Vending API is built with a robust multi-provider failover system to ensure 
     ```
   </Step>
   <Step title="Purchase Utilities">
-    Pay for electricity or cable TV
+    Pay for electricity or cable TV using validated customer details and catalog product codes.
     
     ```bash
     POST /purchaseElectricity
@@ -110,10 +130,17 @@ Our Vending API is built with a robust multi-provider failover system to ensure 
     ```
   </Step>
   <Step title="Check Logs">
-    Review transaction history and status
+    Review transaction history and status across airtime, data, electricity, and cable TV.
     
     ```bash
     GET /logEntries
+    ```
+  </Step>
+  <Step title="Requery Transaction">
+    Confirm the final status of a pending airtime, data, electricity, or cable TV purchase.
+    
+    ```bash
+    GET /requeryTransaction/{orderId}
     ```
   </Step>
 </Steps>
@@ -141,23 +168,31 @@ https://api.bleeprs.com/api
 ## Response Format
 
 <Info>
-All vending endpoints return responses in a consistent JSON format:
+All vending endpoints return responses in a consistent JSON envelope:
 </Info>
 
 ```json
 {
   "gatewayStatus": "00",
   "gatewayMessage": "Successfully Processed",
-  "requestReference": "UNIQUE_REFERENCE_ID",
-  "data": "Response data or message"
+  "requestReference": "bpr_req_a1b2c3d4e5f6",
+  "data": { }
 }
 ```
 
 <AccordionGroup>
   <Accordion title="Response Fields">
-    - **`gatewayStatus`**: "00" indicates success, other values indicate errors
-    - **`gatewayMessage`**: Human-readable status message
-    - **`requestReference`**: Unique identifier for tracking the request
-    - **`data`**: Contains the actual response data or status message
+    - **`gatewayStatus`**: `"00"` indicates success. Any other value indicates an error.
+    - **`gatewayMessage`**: Human-readable status message.
+    - **`requestReference`**: Unique identifier for the request. Use it to reconcile, requery, or contact support.
+    - **`data`**: The response body. Can be an object, an array, or a string, depending on the endpoint — see each endpoint page for the exact shape.
   </Accordion>
 </AccordionGroup>
+
+## Testing in the Playground
+
+Each endpoint page in this documentation has a live request panel. To test end-to-end:
+
+1. Paste your API key into the `Authorization` header once — it is preserved across pages.
+2. Send a purchase request and copy the `requestReference` from the response.
+3. Open [Requery Transaction](/api-reference/endpoint/requeryvendingtransaction), paste the reference into `orderId`, and send.

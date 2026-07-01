@@ -7,3 +7,37 @@ description: "Verify cable TV smartcard ownership"
 ## Overview
 
 Validate a Cable TV smartcard (e.g., DSTV, GOTV, Startimes) against the provider to ensure it belongs to a valid customer before proceeding with a subscription payment.
+
+## Request Body
+
+<RequestField name="smartcard" type="string" required>
+  Customer smartcard or IUC number.
+</RequestField>
+
+<RequestField name="provider" type="string" required>
+  Cable TV provider from the cable TV catalog.
+</RequestField>
+
+## Response Fields
+
+<ResponseField name="name" type="string">
+  Customer name returned for the smartcard.
+</ResponseField>
+
+<ResponseField name="address" type="string">
+  Customer address returned for the smartcard, when available.
+</ResponseField>
+
+<ResponseField name="customerType" type="string">
+  Customer type returned for the smartcard, when available.
+</ResponseField>
+
+<ResponseField name="outstanding" type="number">
+  Outstanding amount returned for the smartcard, when available.
+</ResponseField>
+
+## Notes
+
+- Call [Cable TV Bouquets](/api-reference/endpoint/cabletvlist) first to get supported providers and packages.
+- Use the provider value from the catalog when validating the smartcard.
+- Show the returned customer details to the customer before purchase.

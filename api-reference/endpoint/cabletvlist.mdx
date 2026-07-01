@@ -7,3 +7,65 @@ description: "Retrieve the catalog of bouquets/plans for Cable TV providers."
 ## Overview
 
 Retrieve the catalog of available bouquets and plans for Cable TV providers. You can optionally filter by provider network to get plans specific to DSTV, GOTV, etc.
+
+## Query Parameters
+
+<RequestField name="network" type="string">
+  Optional provider filter, such as `DSTV`, `GOTV`, or `STARTIMES`.
+</RequestField>
+
+## Response
+
+The `data` field is an array of bouquet entries. Each entry contains the fields below.
+
+## Response Fields
+
+<ResponseField name="id" type="number">
+  Unique catalog item ID.
+</ResponseField>
+
+<ResponseField name="network" type="string">
+  Cable TV provider for the package (e.g. `DSTV`, `GOTV`, `STARTIMES`).
+</ResponseField>
+
+<ResponseField name="productCode" type="string">
+  Package code to submit as `bouquetCode` when purchasing.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Customer-readable bouquet or package name.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Package amount in Naira.
+</ResponseField>
+
+<ResponseField name="percentage" type="number">
+  Customer commission rate for the package, when available.
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "gatewayStatus": "00",
+  "gatewayMessage": "Successfully Processed",
+  "requestReference": "bpr_req_a1b2c3d4e5f6",
+  "data": [
+    {
+      "id": 21,
+      "network": "DSTV",
+      "productCode": "DSTV_PACKAGE_CODE",
+      "description": "DSTV Compact",
+      "amount": 15700,
+      "percentage": 1.0
+    }
+  ]
+}
+```
+
+## Notes
+
+- Use the returned `productCode` as the `bouquetCode` when purchasing a subscription.
+- Use the returned `network` as the `provider` when validating or purchasing.
+- Validate the smartcard before purchase so the customer can confirm their account details.

@@ -51,7 +51,7 @@
     {
       "name": "API Status",
       "icon": "signal",
-      "url": "#"
+      "url": "https://status.bleeprs.com"
     }
   ],
   "navigation": [
@@ -115,6 +115,7 @@
         "api-reference/endpoint/cabletvlist",
         "api-reference/endpoint/validatecabletv",
         "api-reference/endpoint/purchasecabletv",
+        "api-reference/endpoint/requeryvendingtransaction",
         "api-reference/endpoint/vendingstatistics",
         "api-reference/endpoint/vendinglogs"
       ]

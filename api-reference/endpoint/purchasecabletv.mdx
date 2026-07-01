@@ -8,6 +8,65 @@ description: "Purchase a subscription for Cable TV"
 
 Purchase a subscription package for a validated Cable TV smartcard. The subscription will be activated instantly.
 
+## Request Body
+
+<RequestField name="smartcard" type="string" required>
+  Validated customer smartcard or IUC number.
+</RequestField>
+
+<RequestField name="provider" type="string" required>
+  Cable TV provider from the cable TV catalog.
+</RequestField>
+
+<RequestField name="bouquetCode" type="string" required>
+  Package `productCode` from the cable TV catalog.
+</RequestField>
+
+<RequestField name="amount" type="number" required>
+  Package amount in Naira.
+</RequestField>
+
+<RequestField name="phone" type="string" required>
+  Customer phone number for the transaction.
+</RequestField>
+
+## Response Fields
+
+<ResponseField name="requestReference" type="string">
+  Reference to store for reconciliation, support, and requerying pending transactions.
+</ResponseField>
+
+<ResponseField name="smartcard" type="string">
+  Smartcard number for the completed purchase.
+</ResponseField>
+
+<ResponseField name="provider" type="string">
+  Cable TV provider for the completed purchase.
+</ResponseField>
+
+<ResponseField name="bouquet" type="string">
+  Purchased package name, when available.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Package amount, in Naira.
+</ResponseField>
+
+<ResponseField name="commission" type="number">
+  Commission earned on the purchase, in Naira.
+</ResponseField>
+
+## Status Codes
+
+| Code | Meaning |
+|------|---------|
+| `200` | Subscription completed successfully. Package details are returned in `data`. |
+| `202` | Subscription accepted but not yet confirmed. Wait at least 2 minutes, then call [Requery Transaction](/api-reference/endpoint/requeryvendingtransaction) to confirm the final status. |
+| `400` | The request could not be processed. Common causes: invalid payload, insufficient balance, or the purchase was declined by the provider. If the wallet was debited, it is automatically refunded. |
+
 ## Notes
 
-- If the response returns `gatewayStatus: "01"` (Pending), wait 2 minutes and 1 second before calling the **Requery API**.
+- Validate the smartcard before purchase and let the customer confirm the returned details.
+- Use the `productCode` from the cable TV catalog as `bouquetCode`.
+- Use the package amount returned by the catalog.
+- If the API returns `gatewayStatus: "01"` or an accepted pending response, wait at least 2 minutes before calling [Requery Transaction](/api-reference/endpoint/requeryvendingtransaction).

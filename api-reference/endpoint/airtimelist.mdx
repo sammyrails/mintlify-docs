@@ -10,4 +10,78 @@ Retrieve a list of all available airtime networks with their pricing, limits, an
 
 No parameters required for this endpoint.
 
-### Data Object Fields
+## Response
+
+The `data` field is an array of network entries. Each entry contains the fields below.
+
+## Response Fields
+
+<ResponseField name="id" type="number">
+  Unique catalog item ID.
+</ResponseField>
+
+<ResponseField name="network" type="string">
+  Network name, such as `MTN`, `AIRTEL`, `GLOBACOM`, or `9MOBILE`.
+</ResponseField>
+
+<ResponseField name="operator" type="string">
+  Operator identifier. Pass this value as `operator` when purchasing airtime.
+</ResponseField>
+
+<ResponseField name="region" type="string">
+  Region for the plan (e.g. `NG`). Empty for plans without a region.
+</ResponseField>
+
+<ResponseField name="productCode" type="string">
+  Product code to submit as `productCode` when purchasing airtime.
+</ResponseField>
+
+<ResponseField name="productGroup" type="string">
+  Group the product belongs to. Empty when not applicable.
+</ResponseField>
+
+<ResponseField name="voucherCode" type="string">
+  Voucher code to include as `voucherCode` when provided by the catalog.
+</ResponseField>
+
+<ResponseField name="minAmount" type="number">
+  Minimum allowed airtime amount for this network, in Naira.
+</ResponseField>
+
+<ResponseField name="maxAmount" type="number">
+  Maximum allowed airtime amount for this network, in Naira.
+</ResponseField>
+
+<ResponseField name="networkLogo" type="string">
+  URL of the network logo, suitable for display in a UI.
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "gatewayStatus": "00",
+  "gatewayMessage": "Successfully Processed",
+  "requestReference": "MA1EF7AxNWuLz2Y0Jzfw",
+  "data": [
+    {
+      "id": 1,
+      "network": "MTN",
+      "operator": "MTN",
+      "region": "NG",
+      "productCode": "MTN_AIRTIME_PRODUCT_CODE",
+      "productGroup": "",
+      "voucherCode": "",
+      "minAmount": 100,
+      "maxAmount": 50000,
+      "networkLogo": "https://cdn.bleeprs.com/logos/mtn.png"
+    }
+  ]
+}
+```
+
+## Notes
+
+- Copy `productCode`, `voucherCode`, `operator`, and `region` directly into [Purchase Airtime](/api-reference/endpoint/purchaseairtime).
+- Use `minAmount` and `maxAmount` to validate customer input before submitting a purchase.
+- The catalog can change, so refresh it regularly instead of hard-coding network options.

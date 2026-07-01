@@ -8,22 +8,69 @@ description: "Purchase data bundle for a phone number"
 
 Purchase a data bundle for any Nigerian phone number using a specific product code. The data will be credited instantly to the recipient's phone.
 
-## How to Use
+## Request Body
+
+Send an array with one or more data purchases.
+
+<RequestField name="phoneNumber" type="string" required>
+  Recipient phone number in Nigerian format.
+</RequestField>
+
+<RequestField name="productCode" type="string" required>
+  Product code from the data catalog.
+</RequestField>
+
+<RequestField name="voucherCode" type="string" required>
+  Voucher code from the data catalog.
+</RequestField>
+
+<RequestField name="network" type="string">
+  Network returned by the data catalog.
+</RequestField>
+
+<RequestField name="amount" type="number">
+  Amount returned by the data catalog.
+</RequestField>
+
+## Response Fields
+
+<ResponseField name="requestReference" type="string">
+  Reference to store for reconciliation and support.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Details of the accepted batch.
+
+  <Expandable title="data">
+    <ResponseField name="message" type="string">
+      Confirmation that the request was accepted for processing.
+    </ResponseField>
+    <ResponseField name="references" type="array">
+      One reference per item in the submitted batch. Store these to reconcile or requery individual purchases.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Status Codes
+
+| Code | Meaning |
+|------|---------|
+| `202` | Batch accepted for processing. Data is credited within a few seconds; use each reference in `data.references` to track individual items. |
+| `400` | The request could not be processed. Common causes: invalid payload, empty body, or the supplied `productCode` was not found in the data catalog. |
+| `422` | Your organisation is not yet configured for vending, or an individual item in the batch could not be posted. |
+| `503` | Data vending is temporarily unavailable. Retry after a short delay. If you specified a `voucherCode` tied to a specific server, try again without one so the other server can be used. |
+
+## Purchase Flow
 
 1. **Get Available Plans**: First, call the [List Data Plans](/api-reference/endpoint/datalist) endpoint to see available data plans for a specific network
 2. **Select Product Code**: Choose the desired data plan and note its `ProductCode`
-3. **Purchase Data**: Use the `ProductCode` in this endpoint to purchase the data bundle
-
-## Example Product Codes
-
-- `LV_MTN_XTRADATA_3DAYS_200_200` - MTN 200MB for 3 days
-- `LV_GLOBACOM_DATA_14DAYS_1800MB_500` - Glo 1.8GB for 14 days
-- `LV_AIRTEL_DATA_1DAY_1GB_300` - Airtel 1GB for 1 day
+3. **Purchase Data**: Submit the selected plan details exactly as returned by the catalog
 
 ## Notes
 
 - Data is credited instantly to the recipient's phone
 - Phone numbers should be in Nigerian format (e.g., 08107176819)
-- Product codes are case-sensitive
+- Product codes and voucher codes are case-sensitive
 - Transaction processing may take a few seconds
 - Ensure the phone number is on the correct network for the data plan
+- Store the `requestReference` returned by the API for reconciliation and support

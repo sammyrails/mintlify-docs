@@ -7,3 +7,41 @@ description: "Verify electricity meter ownership before purchase"
 ## Overview
 
 Validate an electricity meter number against the specified distribution company (DisCo) to ensure it belongs to a valid customer and retrieve their details.
+
+## Request Body
+
+<RequestField name="meter" type="string" required>
+  Customer meter number.
+</RequestField>
+
+<RequestField name="disco" type="string" required>
+  Electricity provider `productCode` from the electricity catalog.
+</RequestField>
+
+<RequestField name="vendType" type="string" required>
+  Meter type, such as `PREPAID` or `POSTPAID`.
+</RequestField>
+
+## Response Fields
+
+<ResponseField name="name" type="string">
+  Customer name returned for the meter.
+</ResponseField>
+
+<ResponseField name="address" type="string">
+  Customer address returned for the meter.
+</ResponseField>
+
+<ResponseField name="minAmount" type="number">
+  Minimum amount accepted for the meter.
+</ResponseField>
+
+<ResponseField name="outstanding" type="number">
+  Outstanding amount returned for the meter, when available.
+</ResponseField>
+
+## Notes
+
+- Call [Electricity Providers](/api-reference/endpoint/electricitylist) first and use the returned `productCode` as `disco`.
+- `vendType` should match the customer's meter type, such as `PREPAID` or `POSTPAID`.
+- Show the returned customer name, address, minimum amount, and outstanding amount to the customer before purchase.

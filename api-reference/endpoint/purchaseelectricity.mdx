@@ -8,8 +8,63 @@ description: "Purchase electricity token for a meter"
 
 Purchase an electricity token for a validated meter. The token will be generated instantly and can be used to recharge the meter.
 
+## Request Body
+
+<RequestField name="meter" type="string" required>
+  Validated meter number.
+</RequestField>
+
+<RequestField name="disco" type="string" required>
+  Electricity provider `productCode` from the electricity catalog.
+</RequestField>
+
+<RequestField name="vendType" type="string" required>
+  Meter type, such as `PREPAID` or `POSTPAID`.
+</RequestField>
+
+<RequestField name="amount" type="number" required>
+  Electricity amount in Naira.
+</RequestField>
+
+<RequestField name="phone" type="string">
+  Customer phone number for the transaction.
+</RequestField>
+
+## Response Fields
+
+<ResponseField name="requestReference" type="string">
+  Reference to store for reconciliation, support, and requerying pending transactions.
+</ResponseField>
+
+<ResponseField name="token" type="string">
+  Electricity token for successful prepaid purchases.
+</ResponseField>
+
+<ResponseField name="units" type="number">
+  Units returned for successful electricity purchases, when available.
+</ResponseField>
+
+<ResponseField name="receiptNo" type="string">
+  Receipt number returned for successful purchases, when available.
+</ResponseField>
+
+<ResponseField name="commission" type="number">
+  Commission earned on the purchase, in Naira.
+</ResponseField>
+
+## Status Codes
+
+| Code | Meaning |
+|------|---------|
+| `200` | Purchase completed successfully. Token details are returned in `data`. |
+| `202` | Purchase accepted but not yet confirmed. Wait at least 2 minutes, then call [Requery Transaction](/api-reference/endpoint/requeryvendingtransaction) to confirm the final status. |
+| `400` | The request could not be processed. Common causes: invalid payload, insufficient balance, or the purchase was declined by the provider. If the wallet was debited, it is automatically refunded. |
+| `429` | Another purchase for the same meter and amount is already in progress. Retry after a short delay or with a different amount. |
+
 ## Notes
 
-- **Minimum Amount:** The minimum purchase amount for electricity is typically ₦2,000.
-- **Maximum Amount:** The maximum purchase amount is ₦200,000 per transaction.
-- If the response returns `gatewayStatus: "01"` (Pending), wait 2 minutes and 1 second before calling the **Requery API**.
+- Validate the meter before purchase and let the customer confirm the returned details.
+- Use the minimum and maximum amount returned by the electricity catalog.
+- The `vendType` must match the customer's meter type.
+- If the API returns `gatewayStatus: "01"` or an accepted pending response, wait at least 2 minutes before calling [Requery Transaction](/api-reference/endpoint/requeryvendingtransaction).
+- Successful prepaid purchases include token details in the response data.

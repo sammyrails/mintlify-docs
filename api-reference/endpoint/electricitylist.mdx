@@ -7,3 +7,64 @@ description: "Retrieve the list of supported Electricity Distribution Companies 
 ## Overview
 
 Get the catalog of all supported electricity providers. This is useful for building a dynamic dropdown of providers for your customers to select from.
+
+## Response
+
+The `data` field is an array of provider entries. Each entry contains the fields below.
+
+## Response Fields
+
+<ResponseField name="id" type="number">
+  Unique catalog item ID.
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Electricity provider or DisCo name.
+</ResponseField>
+
+<ResponseField name="productCode" type="string">
+  Provider code to submit as `disco` when validating or purchasing electricity.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Customer-readable provider description.
+</ResponseField>
+
+<ResponseField name="minAmount" type="number">
+  Minimum supported electricity purchase amount, in Naira.
+</ResponseField>
+
+<ResponseField name="maxAmount" type="number">
+  Maximum supported electricity purchase amount, in Naira.
+</ResponseField>
+
+<ResponseField name="percentage" type="number">
+  Customer commission rate for the provider, when available.
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "gatewayStatus": "00",
+  "gatewayMessage": "Successfully Processed",
+  "requestReference": "bpr_req_a1b2c3d4e5f6",
+  "data": [
+    {
+      "id": 3,
+      "name": "Ikeja Electric",
+      "productCode": "IKEJA_ELECTRIC",
+      "description": "Ikeja Electric prepaid and postpaid tokens",
+      "minAmount": 1000,
+      "maxAmount": 200000,
+      "percentage": 1.5
+    }
+  ]
+}
+```
+
+## Notes
+
+- Use the returned `productCode` as the `disco` value when validating or purchasing electricity.
+- Use the returned `minAmount` and `maxAmount` to validate payment amounts before purchase.
+- Validate the meter before purchase so the customer can confirm the name and address.

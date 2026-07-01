@@ -1,11 +1,55 @@
 ---
 title: "Account Balance"
-description: "Get account Balance"
+description: "Retrieve the balance of every account attached to your organisation."
 openapi: "GET /accountBalance"
 ---
 
+## Overview
+
+Returns the balances held by your organisation across every currency you have been enabled for. Most accounts hold a single balance in their primary currency; organisations enabled for multiple regions receive one entry per currency.
+
 <Tip>
-  An account can have either a single account which is `USD` dominated and a
-  local account of the primary location. In most cases, it can just be one
-  account
+  Use this endpoint to display available funds before initiating a vending or messaging request, and to reconcile wallet activity after transactions complete.
 </Tip>
+
+## Response Fields
+
+<ResponseField name="AccountName" type="string">
+  The registered name of your organisation.
+</ResponseField>
+
+<ResponseField name="GlobalBalance" type="array">
+  One entry per account currency held by your organisation.
+
+  <Expandable title="GlobalBalance item">
+    <ResponseField name="Balance" type="number">
+      Available balance for the account, in the account's currency.
+    </ResponseField>
+    <ResponseField name="Currency" type="string">
+      ISO currency code (e.g. `NGN`, `USD`).
+    </ResponseField>
+    <ResponseField name="AccountNumber" type="string">
+      Reference identifier for the account.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "gatewayStatus": "00",
+  "gatewayMessage": "Successfully Processed",
+  "requestReference": "bpr_req_a1b2c3d4e5f6",
+  "data": {
+    "AccountName": "Acme Ltd",
+    "GlobalBalance": [
+      {
+        "Balance": 7450.00,
+        "Currency": "NGN",
+        "AccountNumber": "ACC_0001"
+      }
+    ]
+  }
+}
+```

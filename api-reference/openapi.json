@@ -324,11 +324,66 @@
           "Insight"
         ],
         "summary": "Account Balance",
-        "description": "Account Balance",
+        "description": "Retrieve the balance of every account attached to your organisation.",
         "operationId": "accountBalance",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "Successfully retrieved account balances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "AccountName": {
+                          "type": "string",
+                          "example": "Acme Ltd"
+                        },
+                        "GlobalBalance": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "Balance": {
+                                "type": "number",
+                                "example": 7450.00
+                              },
+                              "Currency": {
+                                "type": "string",
+                                "example": "NGN"
+                              },
+                              "AccountNumber": {
+                                "type": "string",
+                                "example": "ACC_0001"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -553,7 +608,7 @@
           "Vending"
         ],
         "summary": "Purchase Airtime",
-        "description": "Purchase airtime for a phone number. \n\n**High-Availability Failover**: Airtime purchases are automatically rerouted across active providers (e.g. from LA to BA) if the requested product's primary server is down.",
+        "description": "Purchase airtime for one or more Nigerian phone numbers. Use product details returned by the airtime catalog.",
         "operationId": "purchaseAirtime",
         "security": [
           {
@@ -591,23 +646,23 @@
                     },
                     "productCode": {
                       "type": "string",
-                      "description": "Standard product code retrieved from the Airtime catalog",
-                      "example": "LA_MTN_VTU",
-                      "enum": [
-                        "LA_MTN",
-                        "LA_AIRTEL",
-                        "LA_GLOBACOM",
-                        "LA_9MOBILE",
-                        "BP_MTN",
-                        "BP_AIRTEL",
-                        "BP_GLOBACOM",
-                        "BP_9MOBILE"
-                      ]
+                      "description": "Product code returned by the Airtime catalog",
+                      "example": "MTN_AIRTIME_PRODUCT_CODE"
                     },
                     "voucherCode": {
                       "type": "string",
-                      "description": "Provider-specific voucher SKU if applicable",
+                      "description": "Voucher code returned by the Airtime catalog, when provided",
                       "example": ""
+                    },
+                    "operator": {
+                      "type": "string",
+                      "description": "Operator value returned by the Airtime catalog",
+                      "example": "MTN"
+                    },
+                    "region": {
+                      "type": "string",
+                      "description": "Region value returned by the Airtime catalog",
+                      "example": "NG"
                     }
                   },
                   "required": [
@@ -620,10 +675,10 @@
                 "minItems": 1,
                 "default": [
                   {
-                    "amount": 50,
+                    "amount": 1000,
                     "phoneNumber": "08107176819",
                     "network": "MTN",
-                    "productCode": "LA_MTN"
+                    "productCode": "MTN_AIRTIME_PRODUCT_CODE"
                   }
                 ]
               }
@@ -632,7 +687,7 @@
         },
         "responses": {
           "202": {
-            "description": "Airtime purchase accepted for processing",
+            "description": "Batch accepted for processing. Airtime is credited within a few seconds; use each reference in data.references to track individual items.",
             "content": {
               "application/json": {
                 "schema": {
@@ -644,15 +699,141 @@
                     },
                     "gatewayMessage": {
                       "type": "string",
-                      "example": "Sucessfully Processed"
+                      "example": "Successfully Processed"
                     },
                     "requestReference": {
                       "type": "string",
                       "example": "JJqI1HCxemtGpMOWOESU"
                     },
                     "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Vending Request Sent"
+                        },
+                        "references": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "example": [
+                            "bpr_req_a1b2c3d4e5f6"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be processed. Common causes: invalid payload, empty body, unrecognised network, or amount outside the airtime catalog range.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
                       "type": "string",
-                      "example": "Airtime purchased processing"
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Amount out of range for MTN"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Your organisation is not yet configured for vending, or an individual item in the batch could not be posted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Vending account not configured"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Another purchase for the same phone number and amount is already in progress. Retry after a short delay or with a different amount.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Transaction in progress for this number and amount. Please wait."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Airtime vending is temporarily unavailable across all providers. Retry after a short delay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Airtime vending is temporarily unavailable across all servers. Please try again later."
                     }
                   }
                 }
@@ -668,7 +849,7 @@
           "Vending"
         ],
         "summary": "Purchase Data",
-        "description": "Purchase data bundle for a phone number. \n\n**High-Availability Failover**: Unlike Airtime, Data plans are distinct per provider. If a requested provider is down, the API will return a 503 Service Unavailable error suggesting you pull from the alternate active provider's catalog (e.g., `Please use our other server [LV_] as this server is currently down.`).",
+        "description": "Purchase a data bundle for one or more Nigerian phone numbers. Submit the selected plan details as returned by the data catalog.",
         "operationId": "purchaseData",
         "security": [
           {
@@ -690,23 +871,28 @@
                     },
                     "productCode": {
                       "type": "string",
-                      "description": "Product code for the data plan",
-                      "example": "LV_MTN_XTRADATA_3DAYS_200_200"
+                      "description": "Product code returned by the Data catalog",
+                      "example": "MTN_DATA_PRODUCT_CODE"
                     },
                     "network": {
                       "type": "string",
-                      "description": "Target network operator",
+                      "description": "Target network returned by the Data catalog",
                       "example": "MTN"
                     },
                     "voucherCode": {
                       "type": "string",
-                      "description": "Catalog-provided voucher code identifier",
-                      "example": "LV_MTN_1.5GB"
+                      "description": "Voucher code returned by the Data catalog",
+                      "example": "MTN_DATA_VOUCHER_CODE"
                     },
                     "amount": {
                       "type": "number",
-                      "description": "Cost of the data bundle as mapped in the system",
-                      "example": 1000.0
+                      "description": "Amount returned by the Data catalog",
+                      "example": 1000
+                    },
+                    "dataValue": {
+                      "type": "number",
+                      "description": "Data value returned by the Data catalog, when provided",
+                      "example": 1024
                     }
                   },
                   "required": [
@@ -720,9 +906,10 @@
                 "default": [
                   {
                     "phoneNumber": "08107176819",
-                    "productCode": "LV_MTN_1000_34",
-                    "voucherCode": "LV_MTN",
-                    "network": "LV_MTN"
+                    "productCode": "MTN_DATA_PRODUCT_CODE",
+                    "voucherCode": "MTN_DATA_VOUCHER_CODE",
+                    "network": "MTN",
+                    "amount": 1000
                   }
                 ]
               }
@@ -731,7 +918,7 @@
         },
         "responses": {
           "202": {
-            "description": "Data purchase accepted for processing",
+            "description": "Batch accepted for processing. Data is credited within a few seconds; use each reference in data.references to track individual items.",
             "content": {
               "application/json": {
                 "schema": {
@@ -743,15 +930,113 @@
                     },
                     "gatewayMessage": {
                       "type": "string",
-                      "example": "Sucessfully Processed"
+                      "example": "Successfully Processed"
                     },
                     "requestReference": {
                       "type": "string",
                       "example": "KpEAFZutv3SvQ4aMjrv7"
                     },
                     "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "Vending Request successful"
+                        },
+                        "references": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "example": [
+                            "bpr_req_a1b2c3d4e5f6"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be processed. Common causes: invalid payload, empty body, or the supplied productCode was not found in the data catalog.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
                       "type": "string",
-                      "example": "Data purchased processing"
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Data bundle for MTN_DATA_PRODUCT_CODE not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Your organisation is not yet configured for vending, or an individual item in the batch could not be posted.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Vending account not configured"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Data vending is temporarily unavailable. Retry after a short delay. If you specified a voucherCode tied to a specific server, try again without one so the other server can be used.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Data vending is temporarily unavailable across all servers. Please try again later."
                     }
                   }
                 }
@@ -802,7 +1087,7 @@
                           "properties": {
                             "amount": {
                               "type": "string",
-                              "example": "N7450.00"
+                              "example": "₦7450.00"
                             },
                             "available_for": {
                               "type": "string",
@@ -883,7 +1168,7 @@
                           "properties": {
                             "value": {
                               "type": "string",
-                              "example": "N3850.00"
+                              "example": "₦3850.00"
                             },
                             "change": {
                               "type": "string",
@@ -928,7 +1213,7 @@
           "Vending"
         ],
         "summary": "Vending Logs",
-        "description": "View transaction logs and history",
+        "description": "View vending transaction logs across airtime, data, electricity, and cable TV.",
         "operationId": "logEntries",
         "security": [
           {
@@ -988,7 +1273,9 @@
               "type": "string",
               "enum": [
                 "success",
-                "failed"
+                "failed",
+                "pending",
+                "all"
               ],
               "example": "success"
             },
@@ -1018,6 +1305,22 @@
               "example": "08107176819"
             },
             "description": "Search by phone number or transaction ID"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "airtime",
+                "data",
+                "electricity",
+                "cable",
+                "all"
+              ],
+              "example": "electricity"
+            },
+            "description": "Transaction type filter"
           }
         ],
         "responses": {
@@ -1141,7 +1444,7 @@
           "Vending"
         ],
         "summary": "Validate Electricity Meter",
-        "description": "Verify electricity meter ownership before purchase",
+        "description": "Verify an electricity meter before purchase and return customer details needed for confirmation.",
         "operationId": "validateMeter",
         "security": [
           {
@@ -1161,13 +1464,23 @@
                   },
                   "disco": {
                     "type": "string",
-                    "description": "The Distribution Company (DisCo) slug",
-                    "example": "ikeja-electric"
+                    "description": "Electricity provider productCode returned by the ElectricityList endpoint",
+                    "example": "IKEJA_ELECTRIC"
+                  },
+                  "vendType": {
+                    "type": "string",
+                    "description": "Meter type",
+                    "enum": [
+                      "PREPAID",
+                      "POSTPAID"
+                    ],
+                    "example": "PREPAID"
                   }
                 },
                 "required": [
                   "meter",
-                  "disco"
+                  "disco",
+                  "vendType"
                 ]
               }
             }
@@ -1203,6 +1516,14 @@
                         "address": {
                           "type": "string",
                           "example": "123 TEST STREET, IKEJA"
+                        },
+                        "minAmount": {
+                          "type": "number",
+                          "example": 1000
+                        },
+                        "outstanding": {
+                          "type": "number",
+                          "example": 0
                         }
                       }
                     }
@@ -1220,7 +1541,7 @@
           "Vending"
         ],
         "summary": "Purchase Electricity",
-        "description": "Purchase electricity token for a meter",
+        "description": "Purchase electricity for a validated meter. Successful prepaid purchases return token details.",
         "operationId": "purchaseElectricity",
         "security": [
           {
@@ -1236,7 +1557,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Amount of electricity to purchase (in Naira)",
-                    "example": 1500.0
+                    "example": 1500
                   },
                   "meter": {
                     "type": "string",
@@ -1245,20 +1566,30 @@
                   },
                   "phone": {
                     "type": "string",
-                    "description": "The customer phone number",
+                    "description": "Customer phone number for the transaction",
                     "example": "08000000000"
                   },
                   "disco": {
                     "type": "string",
-                    "description": "The Distribution Company (DisCo) slug",
-                    "example": "ikeja-electric"
+                    "description": "Electricity provider productCode returned by the ElectricityList endpoint",
+                    "example": "IKEJA_ELECTRIC"
+                  },
+                  "vendType": {
+                    "type": "string",
+                    "description": "Meter type",
+                    "enum": [
+                      "PREPAID",
+                      "POSTPAID"
+                    ],
+                    "example": "PREPAID"
                   }
                 },
                 "required": [
                   "amount",
                   "meter",
                   "phone",
-                  "disco"
+                  "disco",
+                  "vendType"
                 ]
               }
             }
@@ -1287,23 +1618,108 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "status": {
-                          "type": "string",
-                          "example": "SUCCESS"
-                        },
                         "token": {
                           "type": "string",
                           "example": "1234 5678 9101 1121 3141"
                         },
                         "units": {
-                          "type": "string",
-                          "example": "24.5 kWh"
+                          "type": "number",
+                          "example": 24.5
                         },
-                        "reference": {
+                        "receiptNo": {
                           "type": "string",
-                          "example": "b8c3a1b2-1024-4f5c-89de-d93a7c6b98e1"
+                          "example": "RCPT123456789"
+                        },
+                        "commission": {
+                          "type": "number",
+                          "example": 25
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Transaction Pending",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "01"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Transaction Pending"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "No additional data is returned while the transaction is pending."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be processed. Common causes: invalid payload, insufficient balance, or the purchase was declined by the provider. If the wallet was debited, it is automatically refunded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "No active NGN vending account found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Another purchase for the same meter and amount is already in progress. Retry after a short delay or with a different amount.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Transaction in progress for this meter and amount. Please wait."
                     }
                   }
                 }
@@ -1319,7 +1735,7 @@
           "Vending"
         ],
         "summary": "Validate Cable TV",
-        "description": "Verify cable TV smartcard ownership",
+        "description": "Verify a cable TV smartcard before purchase and return customer details needed for confirmation.",
         "operationId": "validateSmartcard",
         "security": [
           {
@@ -1378,9 +1794,17 @@
                           "type": "string",
                           "example": "JANE DOE"
                         },
-                        "customerNumber": {
+                        "address": {
                           "type": "string",
-                          "example": "123456789"
+                          "example": "123 TEST STREET, IKEJA"
+                        },
+                        "customerType": {
+                          "type": "string",
+                          "example": "RESIDENTIAL"
+                        },
+                        "outstanding": {
+                          "type": "number",
+                          "example": 0
                         }
                       }
                     }
@@ -1398,7 +1822,7 @@
           "Vending"
         ],
         "summary": "Purchase Cable TV",
-        "description": "Purchase a subscription for Cable TV",
+        "description": "Purchase a cable TV subscription for a validated smartcard.",
         "operationId": "purchaseCableTV",
         "security": [
           {
@@ -1413,8 +1837,8 @@
                 "properties": {
                   "amount": {
                     "type": "number",
-                    "description": "Amount of the subscription package to purchase",
-                    "example": 15700.0
+                    "description": "Package amount returned by the CableTVList endpoint",
+                    "example": 15700
                   },
                   "smartcard": {
                     "type": "string",
@@ -1433,8 +1857,8 @@
                   },
                   "bouquetCode": {
                     "type": "string",
-                    "description": "The specific package or bouquet code",
-                    "example": "db4"
+                    "description": "Product code returned by the CableTVList endpoint",
+                    "example": "DSTV_PACKAGE_CODE"
                   }
                 },
                 "required": [
@@ -1471,15 +1895,84 @@
                     "data": {
                       "type": "object",
                       "properties": {
-                        "status": {
+                        "smartcard": {
                           "type": "string",
-                          "example": "SUCCESS"
+                          "example": "8093245829"
                         },
-                        "reference": {
+                        "provider": {
                           "type": "string",
-                          "example": "b8c3a1b2-1024-4f5c-89de-d93a7c6b98e1"
+                          "example": "DSTV"
+                        },
+                        "bouquet": {
+                          "type": "string",
+                          "example": "DSTV Compact"
+                        },
+                        "amount": {
+                          "type": "number",
+                          "example": 15700
+                        },
+                        "commission": {
+                          "type": "number",
+                          "example": 150
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Transaction Pending",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "01"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Transaction Pending"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "object",
+                      "nullable": true,
+                      "description": "No additional data is returned while the transaction is pending."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The request could not be processed. Common causes: invalid payload, insufficient balance, or the purchase was declined by the provider. If the wallet was debited, it is automatically refunded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "No active NGN vending account found"
                     }
                   }
                 }
@@ -1538,6 +2031,18 @@
                           },
                           "description": {
                             "type": "string"
+                          },
+                          "minAmount": {
+                            "type": "number",
+                            "description": "Minimum purchase amount"
+                          },
+                          "maxAmount": {
+                            "type": "number",
+                            "description": "Maximum purchase amount"
+                          },
+                          "percentage": {
+                            "type": "number",
+                            "description": "Customer commission rate, when available"
                           }
                         }
                       }
@@ -1613,6 +2118,10 @@
                           },
                           "amount": {
                             "type": "number"
+                          },
+                          "percentage": {
+                            "type": "number",
+                            "description": "Customer commission rate, when available"
                           }
                         }
                       }
@@ -1663,38 +2172,53 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "ID": {
-                            "type": "number"
+                          "id": {
+                            "type": "number",
+                            "example": 1
                           },
-                          "Network": {
-                            "type": "string"
+                          "network": {
+                            "type": "string",
+                            "example": "MTN"
                           },
-                          "Operator": {
-                            "type": "string"
+                          "operator": {
+                            "type": "string",
+                            "description": "Pass this value as operator when purchasing airtime.",
+                            "example": "MTN"
                           },
-                          "Region": {
-                            "type": "string"
+                          "region": {
+                            "type": "string",
+                            "description": "Region for the plan (e.g. NG). Empty for plans without a region.",
+                            "example": "NG"
                           },
-                          "MinAmount": {
-                            "type": "number"
+                          "productCode": {
+                            "type": "string",
+                            "description": "Product code to submit as productCode when purchasing airtime.",
+                            "example": "MTN_AIRTIME_PRODUCT_CODE"
                           },
-                          "MaxAmount": {
-                            "type": "number"
+                          "productGroup": {
+                            "type": "string",
+                            "description": "Group the product belongs to. Empty when not applicable.",
+                            "example": ""
                           },
-                          "Percentage": {
-                            "type": "number"
+                          "voucherCode": {
+                            "type": "string",
+                            "description": "Voucher code to include as voucherCode when provided by the catalog.",
+                            "example": ""
                           },
-                          "NetworkLogo": {
-                            "type": "string"
+                          "minAmount": {
+                            "type": "number",
+                            "description": "Minimum allowed airtime amount for this network, in Naira.",
+                            "example": 100
                           },
-                          "VoucherCode": {
-                            "type": "string"
+                          "maxAmount": {
+                            "type": "number",
+                            "description": "Maximum allowed airtime amount for this network, in Naira.",
+                            "example": 50000
                           },
-                          "CreatedAt": {
-                            "type": "string"
-                          },
-                          "UpdatedAt": {
-                            "type": "string"
+                          "networkLogo": {
+                            "type": "string",
+                            "description": "URL of the network logo, suitable for display in a UI.",
+                            "example": "https://cdn.bleeprs.com/logos/mtn.png"
                           }
                         }
                       }
@@ -1713,7 +2237,7 @@
           "Vending"
         ],
         "summary": "List Data Plans",
-        "description": "Get available data plans for a specific network",
+        "description": "Retrieve available data plans. You can optionally filter by network.",
         "operationId": "dataList",
         "security": [
           {
@@ -1724,7 +2248,7 @@
           {
             "name": "network",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "string",
               "enum": [
@@ -1734,7 +2258,7 @@
                 "9MOBILE"
               ]
             },
-            "description": "Network provider to get data plans for"
+            "description": "Optional network provider filter"
           }
         ],
         "responses": {
@@ -1762,41 +2286,249 @@
                       "items": {
                         "type": "object",
                         "properties": {
-                          "ID": {
-                            "type": "number"
+                          "id": {
+                            "type": "number",
+                            "example": 12
                           },
-                          "Network": {
-                            "type": "string"
+                          "network": {
+                            "type": "string",
+                            "example": "MTN"
                           },
-                          "Operator": {
-                            "type": "string"
+                          "operator": {
+                            "type": "string",
+                            "description": "Operator identifier for the plan, when available.",
+                            "example": "MTN"
                           },
-                          "ProductCode": {
-                            "type": "string"
+                          "productCode": {
+                            "type": "string",
+                            "description": "Product code to submit as productCode when purchasing data.",
+                            "example": "MTN_DATA_PRODUCT_CODE"
                           },
-                          "ProductGroup": {
-                            "type": "string"
+                          "productGroup": {
+                            "type": "string",
+                            "description": "Group the product belongs to. Empty when not applicable.",
+                            "example": "SME"
                           },
-                          "NetworkLogo": {
-                            "type": "string"
+                          "voucherCode": {
+                            "type": "string",
+                            "description": "Voucher code to submit as voucherCode when purchasing data.",
+                            "example": "MTN_DATA_VOUCHER_CODE"
                           },
-                          "VoucherCode": {
-                            "type": "string"
+                          "description": {
+                            "type": "string",
+                            "description": "Customer-readable description of the bundle and validity.",
+                            "example": "1GB — 30 days"
                           },
-                          "Description": {
-                            "type": "string"
+                          "amount": {
+                            "type": "number",
+                            "description": "Amount charged in Naira.",
+                            "example": 1000
                           },
-                          "DataValue": {
-                            "type": "number"
+                          "dataValue": {
+                            "type": "number",
+                            "description": "Data value returned for the plan, when available.",
+                            "example": 1024
                           },
-                          "CreatedAt": {
-                            "type": "string"
-                          },
-                          "UpdatedAt": {
-                            "type": "string"
+                          "networkLogo": {
+                            "type": "string",
+                            "description": "URL of the network logo, suitable for display in a UI.",
+                            "example": "https://cdn.bleeprs.com/logos/mtn.png"
                           }
                         }
                       }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requeryTransaction/{orderId}": {
+      "get": {
+        "tags": [
+          "Vending"
+        ],
+        "summary": "Requery Transaction",
+        "description": "Confirm the final status of a pending airtime, data, electricity, or cable TV purchase.",
+        "operationId": "requeryVendingTransaction",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "description": "The `requestReference` returned by the original purchase response. The value you type here is preserved across the playground — paste your real reference to test against a live transaction.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "your-request-reference-here"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Requery completed. Use `data.status` to determine the final outcome.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "00"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Successfully Processed"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "SUCCESS",
+                            "FAILED",
+                            "PENDING"
+                          ],
+                          "example": "SUCCESS"
+                        },
+                        "reference": {
+                          "type": "string",
+                          "example": "bpr_req_a1b2c3d4e5f6"
+                        },
+                        "token": {
+                          "type": "string",
+                          "description": "Returned for successful electricity purchases when available",
+                          "example": "1234 5678 9101 1121 3141"
+                        },
+                        "units": {
+                          "type": "number",
+                          "description": "Returned for successful electricity purchases when available",
+                          "example": 24.5
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No transaction was found for the supplied orderId. Double-check the requestReference from the original purchase response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Transaction not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "425": {
+            "description": "Requery is only available at least 2 minutes and 1 second after the original purchase.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Please wait at least 2 minutes and 1 second after the transaction before attempting a requery."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "The maximum number of requery attempts for this transaction has been reached. Contact support to have the status resolved manually.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Max requery attempts reached. Please contact support for manual verification."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The provider could not be reached to confirm the status. Retry after a short delay.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "gatewayStatus": {
+                      "type": "string",
+                      "example": "88"
+                    },
+                    "gatewayMessage": {
+                      "type": "string",
+                      "example": "Unsucessfull"
+                    },
+                    "requestReference": {
+                      "type": "string",
+                      "example": "bpr_req_a1b2c3d4e5f6"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "Unable to verify transaction status with the provider at this time. Please try again later."
                     }
                   }
                 }

@@ -1,12 +1,12 @@
 ---
 title: "Vending Logs"
-api: "GET /logEntries"
+openapi: "GET /logEntries"
 description: "View transaction logs and history"
 ---
 
 ## Overview
 
-Retrieve detailed transaction logs for your vending activities. Filter by status, network, date range, and search by phone number or transaction ID.
+Retrieve detailed transaction logs for your vending activities. Filter by status, type, network, date range, and search by phone number or transaction ID.
 
 ## Request
 
@@ -40,7 +40,11 @@ curl --location 'https://api.bleeprs.com/api/logEntries?status=success&network=m
 </RequestField>
 
 <RequestField name="status" type="string">
-  Transaction status filter. Options: `success`, `failed`
+  Transaction status filter. Options include `success`, `failed`, and `pending`
+</RequestField>
+
+<RequestField name="type" type="string">
+  Transaction type filter. Options include `airtime`, `data`, `electricity`, `cable`, and `all`
 </RequestField>
 
 <RequestField name="network" type="string">
@@ -130,7 +134,7 @@ curl --location 'https://api.bleeprs.com/api/logEntries?status=success&network=m
 </ResponseField>
 
 <ResponseField name="type" type="string">
-  Transaction type (AIRTIME, DATA)
+  Transaction type (AIRTIME, DATA, ELECTRICITY, CABLETV)
 </ResponseField>
 
 <ResponseField name="network" type="string">
@@ -188,8 +192,8 @@ curl --location 'https://api.bleeprs.com/api/logEntries?status=success&network=m
         "balance_after": 4455.5,
         "commission": 2,
         "created_at": "2025-09-18T08:21:34.530768Z",
-        "data_plan": "LV_MTN_XTRADATA_3DAYS_200_200",
-        "description": "LV_MTN",
+        "data_plan": "MTN_DATA_PRODUCT_CODE",
+        "description": "MTN 1GB Data Plan",
         "id": 25,
         "network": "MTN",
         "operator": "",
@@ -209,7 +213,7 @@ curl --location 'https://api.bleeprs.com/api/logEntries?status=success&network=m
         "commission": 0.5,
         "created_at": "2025-09-18T08:20:59.867764Z",
         "data_plan": "MTN",
-        "description": "LA_MTN",
+        "description": "MTN Airtime",
         "id": 24,
         "network": "MTN",
         "operator": "",

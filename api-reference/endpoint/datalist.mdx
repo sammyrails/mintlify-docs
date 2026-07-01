@@ -8,7 +8,83 @@ description: "Get available data plans for a specific network"
 
 Retrieve a list of available data plans for a specific network. This endpoint allows you to browse all data bundles offered by each network provider.
 
-### Data Plan Object Fields
+You can call this endpoint without a filter to retrieve the full catalog, or pass `network` to return plans for one network.
+
+## Query Parameters
+
+<RequestField name="network" type="string">
+  Optional network filter. Supported values include `MTN`, `AIRTEL`, `GLOBACOM`, and `9MOBILE`.
+</RequestField>
+
+## Response
+
+The `data` field is an array of data plan entries. Each entry contains the fields below.
+
+## Response Fields
+
+<ResponseField name="id" type="number">
+  Unique catalog item ID.
+</ResponseField>
+
+<ResponseField name="network" type="string">
+  Network the data plan belongs to.
+</ResponseField>
+
+<ResponseField name="operator" type="string">
+  Operator identifier for the plan, when available.
+</ResponseField>
+
+<ResponseField name="productCode" type="string">
+  Product code to submit as `productCode` when purchasing data.
+</ResponseField>
+
+<ResponseField name="productGroup" type="string">
+  Group the product belongs to. Empty when not applicable.
+</ResponseField>
+
+<ResponseField name="voucherCode" type="string">
+  Voucher code to submit as `voucherCode` when purchasing data.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Customer-readable description of the bundle and validity.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Amount charged in Naira.
+</ResponseField>
+
+<ResponseField name="dataValue" type="number">
+  Data value returned for the plan, when available.
+</ResponseField>
+
+<ResponseField name="networkLogo" type="string">
+  URL of the network logo, suitable for display in a UI.
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "gatewayStatus": "00",
+  "gatewayMessage": "Successfully Processed",
+  "requestReference": "oodwwrNrMbP9grMPFKVW",
+  "data": [
+    {
+      "id": 12,
+      "network": "MTN",
+      "operator": "MTN",
+      "productCode": "MTN_DATA_PRODUCT_CODE",
+      "productGroup": "SME",
+      "voucherCode": "MTN_DATA_VOUCHER_CODE",
+      "description": "1GB — 30 days",
+      "amount": 1000,
+      "dataValue": 1024,
+      "networkLogo": "https://cdn.bleeprs.com/logos/mtn.png"
+    }
+  ]
+}
+```
 
 ## Supported Networks
 
@@ -19,7 +95,7 @@ Retrieve a list of available data plans for a specific network. This endpoint al
 
 ## Notes
 
-- Data plans vary by network and are updated regularly
-- Use the `ProductCode` from the response when purchasing data
-- `DataValue` represents the cost in Naira
-- Descriptions include data amount and validity period
+- Data plans vary by network and are updated regularly.
+- Copy `productCode`, `voucherCode`, and `network` directly into [Purchase Data](/api-reference/endpoint/purchasedata).
+- `amount` represents the amount charged in Naira.
+- Descriptions include data amount and validity period.

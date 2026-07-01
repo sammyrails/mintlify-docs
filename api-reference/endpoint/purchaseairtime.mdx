@@ -8,6 +8,67 @@ description: "Purchase airtime for a phone number"
 
 Purchase airtime for any Nigerian phone number on supported networks. The airtime will be credited instantly to the recipient's phone.
 
+## Request Body
+
+Send an array with one or more airtime purchases.
+
+<RequestField name="amount" type="number" required>
+  Amount of airtime to purchase in Naira.
+</RequestField>
+
+<RequestField name="phoneNumber" type="string" required>
+  Recipient phone number in Nigerian format.
+</RequestField>
+
+<RequestField name="network" type="string" required>
+  Recipient network.
+</RequestField>
+
+<RequestField name="productCode" type="string" required>
+  Product code from the airtime catalog.
+</RequestField>
+
+<RequestField name="voucherCode" type="string">
+  Voucher code from the airtime catalog, when provided.
+</RequestField>
+
+<RequestField name="operator" type="string">
+  Operator value returned by the airtime catalog. Pass it back verbatim.
+</RequestField>
+
+<RequestField name="region" type="string">
+  Region value returned by the airtime catalog (e.g. `NG`). Pass it back verbatim when provided.
+</RequestField>
+
+## Response Fields
+
+<ResponseField name="requestReference" type="string">
+  Reference to store for reconciliation and support.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Details of the accepted batch.
+
+  <Expandable title="data">
+    <ResponseField name="message" type="string">
+      Confirmation that the request was accepted for processing.
+    </ResponseField>
+    <ResponseField name="references" type="array">
+      One reference per item in the submitted batch. Store these to reconcile or requery individual purchases.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Status Codes
+
+| Code | Meaning |
+|------|---------|
+| `202` | Batch accepted for processing. Airtime is credited within a few seconds; use each reference in `data.references` to track individual items. |
+| `400` | The request could not be processed. Common causes: invalid payload, empty body, unrecognised network, or amount outside the airtime catalog range. |
+| `422` | Your organisation is not yet configured for vending, or an individual item in the batch could not be posted. |
+| `429` | Another purchase for the same phone number and amount is already in progress. Retry after a short delay or with a different amount. |
+| `503` | Airtime vending is temporarily unavailable across all providers. Retry after a short delay. |
+
 ## Supported Networks
 
 - **MTN** - MTN Nigeria
@@ -18,7 +79,8 @@ Purchase airtime for any Nigerian phone number on supported networks. The airtim
 ## Notes
 
 - Airtime is credited instantly to the recipient's phone
-- Minimum purchase amount is ₦100
-- Maximum purchase amount varies by network (typically ₦30,000)
+- The minimum purchase amount is `₦100`; refer to the airtime catalog for network-specific limits.
+- Maximum purchase amounts are returned by the airtime catalog
 - Phone numbers should be in Nigerian format (e.g., 08107176819)
 - Transaction processing may take a few seconds
+- Store the `requestReference` returned by the API for reconciliation and support

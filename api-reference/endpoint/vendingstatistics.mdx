@@ -6,13 +6,135 @@ description: "Get vending statistics and account information"
 
 ## Overview
 
-Retrieve comprehensive statistics about your vending activities, including account balance, transaction metrics, and performance data.
+Retrieve a summary of your vending activity for the past 7 days, alongside the current account balance and week-over-week comparisons.
+
+## Response Fields
+
+<ResponseField name="account_balance" type="object">
+  Current balance of the vending account.
+
+  <Expandable title="account_balance">
+    <ResponseField name="amount" type="string">
+      Formatted balance including the Naira symbol (e.g. `₦7450.00`).
+    </ResponseField>
+    <ResponseField name="currency" type="string">
+      Currency code (e.g. `NGN`).
+    </ResponseField>
+    <ResponseField name="available_for" type="string">
+      What the balance can be used for. Returns `vending`.
+    </ResponseField>
+    <ResponseField name="last_updated" type="string">
+      When the balance was last refreshed, in `M/D/YYYY, h:mm:ss AM/PM` format.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="period" type="object">
+  Date range covered by the current and previous weeks.
+
+  <Expandable title="period">
+    <ResponseField name="current_week_start" type="string">
+      Start of the current 7-day window, in `YYYY-MM-DD` format.
+    </ResponseField>
+    <ResponseField name="current_week_end" type="string">
+      End of the current 7-day window, in `YYYY-MM-DD` format.
+    </ResponseField>
+    <ResponseField name="previous_week_start" type="string">
+      Start of the previous 7-day window, used for the comparison figures.
+    </ResponseField>
+    <ResponseField name="previous_week_end" type="string">
+      End of the previous 7-day window.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="statistics" type="object">
+  Transaction metrics for the current 7-day window.
+
+  <Expandable title="statistics">
+    <ResponseField name="total_transactions" type="object">
+      Total number of vending transactions this week, with change vs last week.
+    </ResponseField>
+    <ResponseField name="successful" type="object">
+      Number of successful transactions this week, with success-rate change vs last week.
+    </ResponseField>
+    <ResponseField name="failed" type="object">
+      Number of failed transactions this week, and the failure rate as a percentage.
+    </ResponseField>
+    <ResponseField name="total_amount" type="object">
+      Total amount vended this week (formatted with the Naira symbol), with percentage change vs last week.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+Each metric object contains:
+
+<ResponseField name="value" type="number or string">
+  The metric value. `total_amount.value` is a formatted string (`₦...`); others are numbers.
+</ResponseField>
+
+<ResponseField name="change" type="string">
+  Percentage change vs the previous week (e.g. `12.5%`). Present on `total_transactions` and `total_amount`.
+</ResponseField>
+
+<ResponseField name="rate" type="string">
+  Percentage figure for success or failure rate. Present on `successful` and `failed`.
+</ResponseField>
+
+<ResponseField name="is_positive" type="boolean">
+  `true` when the change or rate represents an improvement (higher volume, higher success rate). Always `false` for `failed`.
+</ResponseField>
+
+## Example Response
+
+```json
+{
+  "gatewayStatus": "00",
+  "gatewayMessage": "Successfully Processed",
+  "requestReference": "ESzHw13F3Xa93uizdop6",
+  "data": {
+    "account_balance": {
+      "amount": "₦7450.00",
+      "available_for": "vending",
+      "currency": "NGN",
+      "last_updated": "9/18/2025, 8:22:50 AM"
+    },
+    "period": {
+      "current_week_start": "2025-09-11",
+      "current_week_end": "2025-09-18",
+      "previous_week_start": "2025-09-04",
+      "previous_week_end": "2025-09-11"
+    },
+    "statistics": {
+      "total_transactions": {
+        "value": 24,
+        "change": "0.0%",
+        "is_positive": true
+      },
+      "successful": {
+        "value": 7,
+        "rate": "0.0%",
+        "is_positive": true
+      },
+      "failed": {
+        "value": 17,
+        "rate": "70.8%",
+        "is_positive": false
+      },
+      "total_amount": {
+        "value": "₦3850.00",
+        "change": "0.0%",
+        "is_positive": true
+      }
+    }
+  }
+}
+```
 
 ## Notes
 
-- Statistics are calculated based on weekly periods
-- All monetary values are in Nigerian Naira (NGN)
-- Trends compare current week to previous week
-- Account balance is updated in real-time
-- Use this endpoint to monitor your vending performance and account status
+- Statistics cover a rolling 7-day window ending today.
+- Monetary amounts are formatted with the Naira symbol (`₦`).
+- Trends compare the current 7-day window to the previous 7-day window.
+- Account balance reflects the most recent wallet state.
 
