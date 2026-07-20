@@ -17,7 +17,7 @@ Send an array with one or more airtime purchases.
 </RequestField>
 
 <RequestField name="phoneNumber" type="string" required>
-  Recipient phone number in Nigerian format.
+  Recipient phone number. Accepted formats: `08012345678` (11 digits), `2348012345678` (international), or `8012345678` (10 digits). All are normalized to the 11-digit local format.
 </RequestField>
 
 <RequestField name="network" type="string" required>
@@ -81,6 +81,6 @@ Send an array with one or more airtime purchases.
 - Airtime is credited instantly to the recipient's phone
 - The minimum purchase amount is `₦100`; refer to the airtime catalog for network-specific limits.
 - Maximum purchase amounts are returned by the airtime catalog
-- Phone numbers should be in Nigerian format (e.g., 08107176819)
+- Phone numbers are accepted as `080...`, `23480...`, or `80...` and normalized to the 11-digit local format; non-Nigerian mobile numbers are rejected before any charge
 - Transaction processing may take a few seconds
 - Store the `requestReference` returned by the API for reconciliation and support

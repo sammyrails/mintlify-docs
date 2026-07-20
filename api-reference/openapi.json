@@ -630,7 +630,7 @@
                     },
                     "phoneNumber": {
                       "type": "string",
-                      "description": "Recipient's phone number (Nigerian format)",
+                      "description": "Recipient's phone number. Accepted as 08012345678, 2348012345678, or 8012345678 — normalized to the 11-digit local format.",
                       "example": "08107176819"
                     },
                     "network": {
@@ -866,7 +866,7 @@
                   "properties": {
                     "phoneNumber": {
                       "type": "string",
-                      "description": "Recipient's phone number (Nigerian format)",
+                      "description": "Recipient's phone number. Accepted as 08012345678, 2348012345678, or 8012345678 — normalized to the 11-digit local format.",
                       "example": "08107176819"
                     },
                     "productCode": {
@@ -1390,9 +1390,6 @@
                                 "type": "number"
                               },
                               "commission": {
-                                "type": "number"
-                              },
-                              "balance_after": {
                                 "type": "number"
                               },
                               "type": {

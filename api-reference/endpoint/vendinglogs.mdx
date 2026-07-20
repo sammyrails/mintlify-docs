@@ -129,10 +129,6 @@ curl --location 'https://api.bleeprs.com/api/logEntries?status=success&network=m
   Commission earned
 </ResponseField>
 
-<ResponseField name="balance_after" type="number">
-  Account balance after transaction
-</ResponseField>
-
 <ResponseField name="type" type="string">
   Transaction type (AIRTIME, DATA, ELECTRICITY, CABLETV)
 </ResponseField>
@@ -189,7 +185,6 @@ curl --location 'https://api.bleeprs.com/api/logEntries?status=success&network=m
     "Items": [
       {
         "amount": "N200.00",
-        "balance_after": 4455.5,
         "commission": 2,
         "created_at": "2025-09-18T08:21:34.530768Z",
         "data_plan": "MTN_DATA_PRODUCT_CODE",
@@ -209,7 +204,6 @@ curl --location 'https://api.bleeprs.com/api/logEntries?status=success&network=m
       },
       {
         "amount": "N50.00",
-        "balance_after": 4653.5,
         "commission": 0.5,
         "created_at": "2025-09-18T08:20:59.867764Z",
         "data_plan": "MTN",
