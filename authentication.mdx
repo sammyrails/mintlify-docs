@@ -1,6 +1,6 @@
 ---
 title: "Authentication"
-description: "Gudie on bleeprs authentication and security"
+description: "Guide on Bleeprs authentication and security"
 icon: "shield"
 iconType: "solid"
 ---
@@ -9,19 +9,19 @@ iconType: "solid"
 
 This section will guide you through accessing your Bleeprs resources, and the available security operations. Here you will learn how authentication, and user verification, work on Bleeprs.
 
-When you sign up, Pooler creates API keys for you to use when making and verifying requests. You can find these keys on your dashboard. There are two types of API keys on Pooler:
+When you sign up, Bleeprs creates API keys for you to use when making and verifying requests. You can find these keys on your dashboard. There are two types of API keys on Bleeprs:
 
 ### Authentication
 
 <AccordionGroup>
   <Accordion icon="key" title="Public Keys">
-    This key exists today but has been disbaled on the system globally. This key
+    This key exists today but has been disabled on the system globally. This key
     serves as a way to authenticate public communications on your Bleeprs
     account from third-party systems without any security risk. This key starts
     with `pk_******`
   </Accordion>
   <Accordion icon="shield-halved" title="Private Keys">
-    This key is your primary security key used for access your account via api
+    This key is your primary security key used to access your account via the API
     for all possible resource communications you find on this guide. The key
     starts with `sk_***`
   </Accordion>
@@ -29,13 +29,13 @@ When you sign up, Pooler creates API keys for you to use when making and verifyi
 
 ### Getting Your Keys
 
-You api keys are the most simple resources to find on the Bleeprs Intuituve platform, simply login to your dashboard and see them like so.
+Your API keys are the simplest resources to find on the intuitive Bleeprs platform, simply login to your dashboard and see them like so.
 
 <Frame>
   <img
     className="block dark:hidden"
     src="/images/api_keys.png"
-    alt="Api Kyes Guide"
+    alt="API Keys Guide"
   />
 </Frame>
 <Warning>
@@ -43,4 +43,40 @@ You api keys are the most simple resources to find on the Bleeprs Intuituve plat
   any way.
 </Warning>
 
-Simply click the copy button and happy programing! 🚀
+Simply click the copy button and happy programming! 🚀
+
+### Rotating your keys
+
+If you think your private key has leaked (for example, it was committed to a public repository, shared in a message, or known to someone who has left your team), replace it straight away.
+
+<Steps>
+  <Step title="Open your settings">
+    Log in to your dashboard and open **Settings**. Your keys are under **Developer**.
+  </Step>
+  <Step title="Regenerate your keys">
+    Click **Regenerate keys**, read the warning, and enter your account password to confirm.
+  </Step>
+  <Step title="Update your systems">
+    Copy the new private key and update every system that calls the Bleeprs API.
+  </Step>
+</Steps>
+
+<Warning>
+  Your current public and private keys stop working **immediately**. Requests
+  using the old private key are refused until you update them, so have the new
+  key ready to deploy before you regenerate.
+</Warning>
+
+What to expect:
+
+- **Both keys change.** You get a new public key and a new private key; the old ones can never be used again.
+- **We email you.** The account owner receives an email saying the keys were changed, by whom, when, and (if you changed them) from which IP address. The email never contains your keys.
+- **Your keys stay on your dashboard.** You can copy the new keys from **Settings** at any time.
+- **Password attempts are limited.** After 5 incorrect passwords, regenerating is paused for 15 minutes. This does not log you out.
+
+<Note>
+  If we detect or are told that your key has leaked, Bleeprs Support may
+  rotate your keys for you to protect your account. You will receive an email
+  saying the keys were changed by Bleeprs Support. Copy the new private key
+  from your dashboard and update your systems.
+</Note>

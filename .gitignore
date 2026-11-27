@@ -1,1 +1,9 @@
 docs.json
+
+# Local only, never pushed
+.omc/
+*_test.*
+*.test.*
+*.bak
+.DS_Store
+node_modules/
